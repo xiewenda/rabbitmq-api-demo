@@ -1,4 +1,4 @@
-package com.hmily.rabbitmqapidemo.confirm;
+package com.hmily.rabbitmqapidemo.returnlistener;
 
 import com.hmily.rabbitmqapidemo.common.RabbitMQConfig;
 import com.rabbitmq.client.Channel;
@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
 /**
- * confirm机制消费端
+ *  Return返回消息
  */
 @Slf4j
 public class Consumer {
@@ -21,27 +21,27 @@ public class Consumer {
         connectionFactory.setHost(RabbitMQConfig.RABBITMQ_HOST);
         connectionFactory.setPort(RabbitMQConfig.RABBITMQ_PORT);
         connectionFactory.setVirtualHost(RabbitMQConfig.RABBITMQ_DEFAULT_VIRTUAL_HOST);
-        //2 获取C	onnection
+
         Connection connection = connectionFactory.newConnection();
-        //3 通过Connection创建一个新的Channel
         Channel channel = connection.createChannel();
-        String exchangeName = "test_confirm_exchange";
-        String routingKey = "confirm.#";
-        String queueName = "test_confirm_queue";
-        //4 声明交换机和队列 然后进行绑定设置, 最后制定路由Key
-        channel.exchangeDeclare(exchangeName, "topic", true);   //true表示持久化
-                                        //是否持久化，独占模式，自动删除
+
+        String exchangeName = "test_return_exchange";
+        String routingKey = "return.#";
+        String queueName = "test_return_queue";
+
+        channel.exchangeDeclare(exchangeName, "topic", true, false, null);
         channel.queueDeclare(queueName, true, false, false, null);
         channel.queueBind(queueName, exchangeName, routingKey);
-        //5 创建消费者
+
         QueueingConsumer queueingConsumer = new QueueingConsumer(channel);
+
         channel.basicConsume(queueName, true, queueingConsumer);
-        log.info("消费端已启动");
+        log.info("消费端启动成功");
         while(true){
+
             QueueingConsumer.Delivery delivery = queueingConsumer.nextDelivery();
             String msg = new String(delivery.getBody());
-
-            log.info("消费端: {}", msg);
+            log.info("消费者: {}", msg);
         }
     }
 }
