@@ -18,9 +18,6 @@ import org.slf4j.LoggerFactory;
  */
 @Slf4j
 public class Consumer {
-	
-	private final static Logger log = LoggerFactory.getLogger(Consumer.class);
-
     public static void main(String[] args) throws IOException, TimeoutException, InterruptedException {
         ConnectionFactory connectionFactory = new ConnectionFactory();
         connectionFactory.setHost(RabbitMQConfig.RABBITMQ_HOST);

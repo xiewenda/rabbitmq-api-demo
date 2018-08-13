@@ -1,4 +1,4 @@
-package com.hmily.rabbitmqapidemo.quickstart;
+package com.hmily.rabbitmqapidemo.consumer;
 
 import com.hmily.rabbitmqapidemo.common.RabbitMQConfig;
 import com.rabbitmq.client.Channel;
@@ -9,31 +9,32 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
- * 快速开始：生产者
+ * 使用自定义消费者
  */
 @Slf4j
-public class Procuder {
+public class Consumer {
     public static void main(String[] args) throws IOException, TimeoutException {
+        //1 创建ConnectionFactory
         ConnectionFactory connectionFactory = new ConnectionFactory();
         connectionFactory.setHost(RabbitMQConfig.RABBITMQ_HOST);
         connectionFactory.setPort(RabbitMQConfig.RABBITMQ_PORT);
         connectionFactory.setVirtualHost(RabbitMQConfig.RABBITMQ_DEFAULT_VIRTUAL_HOST);
-
+        //2 获取C	onnection
         Connection connection = connectionFactory.newConnection();
-
+        //3 通过Connection创建一个新的Channel
         Channel channel = connection.createChannel();
 
-        for (int i = 0; i < 5; i++) {
-            String msg = "hello RabbitMQ! " + i;
-            log.info("生产者发送消息：{}", msg);
-            channel.basicPublish("", "test1001", null, msg.getBytes());
-        }
-        log.info("生产者发送消息完毕");
-        channel.close();
-        connection.close();
+        String exchangeName = "test_consumer_exchange";
+        String routingKey = "consumer.#";
+        String queueName = "test_consumer_queue";
+
+        channel.exchangeDeclare(exchangeName, "topic", true, false, null);
+        channel.queueDeclare(queueName, true, false, false, null);
+        channel.queueBind(queueName, exchangeName, routingKey);
+        //使用自定义消费者
+        channel.basicConsume(queueName, true, new MyConsumer(channel));
+        log.info("消费端启动成功");
+
     }
 }

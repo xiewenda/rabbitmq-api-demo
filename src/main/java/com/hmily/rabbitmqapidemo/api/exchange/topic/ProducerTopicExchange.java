@@ -3,6 +3,7 @@ package com.hmily.rabbitmqapidemo.api.exchange.topic;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,11 +15,8 @@ import com.rabbitmq.client.ConsumerCancelledException;
 import com.rabbitmq.client.QueueingConsumer;
 import com.rabbitmq.client.QueueingConsumer.Delivery;
 import com.rabbitmq.client.ShutdownSignalException;
-
+@Slf4j
 public class ProducerTopicExchange {
-
-	private final static Logger log = LoggerFactory.getLogger(ProducerTopicExchange.class);
-
 	public static void main(String[] args) throws IOException, TimeoutException {
 		ConnectionFactory connectionFactory = new ConnectionFactory();
 		connectionFactory.setHost(RabbitMQConfig.RABBITMQ_HOST);
@@ -36,12 +34,12 @@ public class ProducerTopicExchange {
 		String routingKey3 = "user.delete.abc";
 		
 		String msg = "Hello World RabbitMQ  Topic Exchange Message ...";
-		log.info("生产端， {} ：", routingKey1,msg);
-		channel.basicPublish(exchangeName, routingKey1 , null , msg.getBytes()); 
-		log.info("生产端， {} ：", routingKey2,msg);
-		channel.basicPublish(exchangeName, routingKey2 , null , msg.getBytes()); 	
-		log.info("生产端， {} ：", routingKey3,msg);
-		channel.basicPublish(exchangeName, routingKey3 , null , msg.getBytes()); 
+		log.info("生产端， {} ：{}", routingKey1, msg);
+		channel.basicPublish(exchangeName, routingKey1 , null , (routingKey1 + msg).getBytes());
+		log.info("生产端， {} ：{}", routingKey2, msg);
+		channel.basicPublish(exchangeName, routingKey2 , null , (routingKey2 + msg).getBytes());
+		log.info("生产端， {} ：{}", routingKey3, msg);
+		channel.basicPublish(exchangeName, routingKey3 , null , (routingKey3 + msg).getBytes());
 		channel.close();  
         connection.close(); 
 	}

@@ -3,6 +3,7 @@ package com.hmily.rabbitmqapidemo.api.exchange.fanout;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,16 +16,14 @@ import com.rabbitmq.client.QueueingConsumer;
 import com.rabbitmq.client.QueueingConsumer.Delivery;
 import com.rabbitmq.client.ShutdownSignalException;
 
+@Slf4j
 public class ConsumerFanoutExchange {
-	
-	private final static Logger log = LoggerFactory.getLogger(ConsumerFanoutExchange.class);
-	
-	public static void main(String[] args) throws IOException, TimeoutException, ShutdownSignalException, ConsumerCancelledException, InterruptedException {
+	public static void main(String[] args) throws IOException, TimeoutException, ShutdownSignalException,
+            ConsumerCancelledException, InterruptedException {
 		ConnectionFactory connectionFactory = new ConnectionFactory();
 		connectionFactory.setHost(RabbitMQConfig.RABBITMQ_HOST);
 		connectionFactory.setPort(RabbitMQConfig.RABBITMQ_PORT);
 		connectionFactory.setVirtualHost(RabbitMQConfig.RABBITMQ_DEFAULT_VIRTUAL_HOST);
-
 		connectionFactory.setAutomaticRecoveryEnabled(true);
         connectionFactory.setNetworkRecoveryInterval(3000);
         Connection connection = connectionFactory.newConnection();
@@ -34,12 +33,11 @@ public class ConsumerFanoutExchange {
 		String exchangeName = "test_fanout_exchange";
 		String exchangeType = "fanout";
 		String queueName = "test_fanout_queue";
-		String routingKey = "";	//不设置路由键
+		String routingKey = "";	//不设置路由键   durable 是否持久化消息
 		channel.exchangeDeclare(exchangeName, exchangeType, true, false, false, null);
 		channel.queueDeclare(queueName, false, false, false, null);
 		channel.queueBind(queueName, exchangeName, routingKey);
-		
-        //durable 是否持久化消息
+
         QueueingConsumer consumer = new QueueingConsumer(channel);
         //参数：队列名称、是否自动ACK、Consumer
         channel.basicConsume(queueName, true, consumer); 
