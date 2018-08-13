@@ -10,11 +10,16 @@ import com.rabbitmq.client.QueueingConsumer.Delivery;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * 快速开始：消费者
  */
 @Slf4j
 public class Consumer {
+	
+	private final static Logger log = LoggerFactory.getLogger(Consumer.class);
 
     public static void main(String[] args) throws IOException, TimeoutException, InterruptedException {
         ConnectionFactory connectionFactory = new ConnectionFactory();
